@@ -55,7 +55,6 @@ func (c *Client) sign(timestamp, method, requestPath string) (string, error) {
 }
 
 // Request makes a request to the Coinbase Pro API using the given client.
-// TODO: Return map instead of *http.Response
 func (c *Client) Request(method, requestPath string, query url.Values, body io.Reader) (*http.Response, error) {
 	if c.Doer == nil {
 		return nil, errors.New("coinbase: Client.Doer is nil")
