@@ -1,4 +1,4 @@
-package coinbase
+package cbpro
 
 import (
 	"crypto/hmac"
@@ -38,17 +38,17 @@ type Client struct {
 // sign creates the string that is used to sign requests to the API.
 func (c *Client) sign(timestamp, method, requestPath string) (string, error) {
 	if timestamp == "" || method == "" || requestPath == "" {
-		return "", errors.New("coinbase: arguments to sign cannot be empty")
+		return "", errors.New("cbpro: arguments to sign cannot be empty")
 	}
 	prehash := timestamp + method + requestPath
 	secretKey, err := base64.StdEncoding.DecodeString(c.Secret)
 	if err != nil {
-		return "", fmt.Errorf("coinbase: error decoding secret %w", err)
+		return "", fmt.Errorf("cbpro: error decoding secret %w", err)
 	}
 	mac := hmac.New(sha256.New, secretKey)
 	_, err = io.WriteString(mac, prehash)
 	if err != nil {
-		return "", fmt.Errorf("coinbase: error hashing signature %w", err)
+		return "", fmt.Errorf("cbpro: error hashing signature %w", err)
 	}
 	sig := base64.StdEncoding.EncodeToString(mac.Sum(nil))
 	return sig, nil
@@ -57,19 +57,19 @@ func (c *Client) sign(timestamp, method, requestPath string) (string, error) {
 // Request makes a request to the Coinbase Pro API using the given client.
 func (c *Client) Request(method, requestPath string, query url.Values, body io.Reader) (*http.Response, error) {
 	if c.Doer == nil {
-		return nil, errors.New("coinbase: Client.Doer is nil")
+		return nil, errors.New("cbpro: Client.Doer is nil")
 	}
 
 	u, err := url.Parse(apiURL)
 	if err != nil {
-		return nil, fmt.Errorf("coinbase: error parsing url %w", err)
+		return nil, fmt.Errorf("cbpro: error parsing url %w", err)
 	}
 	u.Path = path.Join(u.Path, requestPath)
 	u.RawQuery = query.Encode()
 
 	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
-		return nil, fmt.Errorf("coinbase: error generating request %w", err)
+		return nil, fmt.Errorf("cbpro: error generating request %w", err)
 	}
 	req.Header.Add(keyFieldName, c.Key)
 	sig, err := c.sign(timestamp(), method, requestPath)
@@ -83,7 +83,7 @@ func (c *Client) Request(method, requestPath string, query url.Values, body io.R
 
 	result, err := c.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("coinbase: error performing request %w", err)
+		return nil, fmt.Errorf("cbpro: error performing request %w", err)
 	}
 	return result, nil
 }
