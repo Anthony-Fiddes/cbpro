@@ -104,6 +104,22 @@ func (c *Client) GetProducts() ([]Product, error) {
 	return pp, nil
 }
 
+// GetProduct returns a specific currency pair, given its ID.
+func (c *Client) GetProduct(productID string) (Product, error) {
+	rp := path.Join("/products", productID)
+	result, err := c.Request("GET", rp, nil, nil)
+	if err != nil {
+		return Product{}, err
+	}
+	j := json.NewDecoder(result.Body)
+	p := Product{}
+	err = j.Decode(&p)
+	if err != nil {
+		return Product{}, fmt.Errorf("cbpro: error decoding json %w", err)
+	}
+	return p, nil
+}
+
 func timestamp() string {
 	now := time.Now()
 	t := fmt.Sprintf("%d", now.UTC().Unix())
