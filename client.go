@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -86,6 +87,21 @@ func (c *Client) Request(method, requestPath string, query url.Values, body io.R
 		return nil, fmt.Errorf("cbpro: error performing request %w", err)
 	}
 	return result, nil
+}
+
+// GetProducts returns a list of all of the available Coinbase Pro currency pairs.
+func (c *Client) GetProducts() ([]Product, error) {
+	result, err := c.Request("GET", "/products", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	j := json.NewDecoder(result.Body)
+	pp := make([]Product, 0, approxNumProducts)
+	err = j.Decode(&pp)
+	if err != nil {
+		return nil, fmt.Errorf("cbpro: error decoding json %w", err)
+	}
+	return pp, nil
 }
 
 func timestamp() string {
