@@ -1,12 +1,16 @@
 package main
 
 import (
+	_ "embed"
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path"
+	"time"
 
+	"github.com/Anthony-Fiddes/cbpro"
 	"github.com/spf13/viper"
 )
 
@@ -22,6 +26,9 @@ const (
 	configPath          = "."
 	configHomePath      = "$HOME/.krypto"
 )
+
+//go:embed usage.txt
+var usage string
 
 func readConfig() {
 	viper.SetConfigName(configName)
@@ -66,6 +73,26 @@ func readConfig() {
 	}
 }
 
+var client cbpro.Client
+
 func main() {
 	readConfig()
+	client.Doer = &http.Client{Timeout: time.Second * 3}
+	client.Key = viper.GetString(keyFieldName)
+	client.Secret = viper.GetString(secretFieldName)
+	client.Passphrase = viper.GetString(passphraseFieldName)
+
+	args := os.Args[1:]
+	if len(args) < 1 {
+		fmt.Fprint(os.Stderr, usage)
+		os.Exit(1)
+	}
+	commands := map[string]func([]string) error{
+		listCommand: list,
+	}
+
+	err := commands[args[0]](args[1:])
+	if err != nil {
+		log.Fatal(err)
+	}
 }

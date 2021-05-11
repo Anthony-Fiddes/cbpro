@@ -1,0 +1,2 @@
+Usage:
+    krypto <command> [arguments]
