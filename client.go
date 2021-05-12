@@ -89,17 +89,25 @@ func (c *Client) Request(method, requestPath string, query url.Values, body io.R
 	return result, nil
 }
 
+func unmarshalResponse(body io.ReadCloser, v interface{}) error {
+	j := json.NewDecoder(body)
+	err := j.Decode(v)
+	if err != nil {
+		return fmt.Errorf("cbpro: error decoding json %w", err)
+	}
+	return nil
+}
+
 // GetProducts returns a list of all of the available Coinbase Pro currency pairs.
 func (c *Client) GetProducts() ([]Product, error) {
 	result, err := c.Request("GET", "/products", nil, nil)
 	if err != nil {
 		return nil, err
 	}
-	j := json.NewDecoder(result.Body)
 	pp := make([]Product, 0, approxNumProducts)
-	err = j.Decode(&pp)
+	err = unmarshalResponse(result.Body, &pp)
 	if err != nil {
-		return nil, fmt.Errorf("cbpro: error decoding json %w", err)
+		return nil, err
 	}
 	return pp, nil
 }
@@ -111,11 +119,10 @@ func (c *Client) GetProduct(productID string) (Product, error) {
 	if err != nil {
 		return Product{}, err
 	}
-	j := json.NewDecoder(result.Body)
 	p := Product{}
-	err = j.Decode(&p)
+	err = unmarshalResponse(result.Body, &p)
 	if err != nil {
-		return Product{}, fmt.Errorf("cbpro: error decoding json %w", err)
+		return Product{}, err
 	}
 	return p, nil
 }
