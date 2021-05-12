@@ -112,7 +112,7 @@ func (c *Client) GetProducts() ([]Product, error) {
 	return pp, nil
 }
 
-// GetProduct returns a specific currency pair, given its ID.
+// GetProduct returns the information for a specific currency pair, given its ID.
 func (c *Client) GetProduct(productID string) (Product, error) {
 	rp := path.Join("/products", productID)
 	result, err := c.Request("GET", rp, nil, nil)
@@ -125,6 +125,21 @@ func (c *Client) GetProduct(productID string) (Product, error) {
 		return Product{}, err
 	}
 	return p, nil
+}
+
+// GetProduct24Hour returns the 24 hour stats for a specific currency pair.
+func (c *Client) GetProduct24Hour(productID string) (Stats, error) {
+	rp := path.Join("/products", productID, "stats")
+	result, err := c.Request("GET", rp, nil, nil)
+	if err != nil {
+		return Stats{}, err
+	}
+	s := Stats{}
+	err = unmarshalResponse(result.Body, &s)
+	if err != nil {
+		return Stats{}, err
+	}
+	return s, nil
 }
 
 func timestamp() string {
