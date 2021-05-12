@@ -20,3 +20,12 @@ type Product struct {
 	StatusMessage   string `json:"status_message"`
 	TradingDisabled bool   `json:"trading_disabled"`
 }
+
+type Stats struct {
+	Open        string `json:"open"`
+	High        string `json:"high"`
+	Low         string `json:"low"`
+	Volume      string `json:"volume"`
+	Last        string `json:"last"`
+	Volume30Day string `json:"volume_30day"`
+}

@@ -127,8 +127,8 @@ func (c *Client) GetProduct(productID string) (Product, error) {
 	return p, nil
 }
 
-// GetProduct24Hour returns the 24 hour stats for a specific currency pair.
-func (c *Client) GetProduct24Hour(productID string) (Stats, error) {
+// GetProductStats returns the 24 hour stats for a specific currency pair.
+func (c *Client) GetProductStats(productID string) (Stats, error) {
 	rp := path.Join("/products", productID, "stats")
 	result, err := c.Request("GET", rp, nil, nil)
 	if err != nil {
